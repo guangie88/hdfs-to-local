@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"path"
 
 	"github.com/BurntSushi/toml"
@@ -31,8 +32,8 @@ func exitOnErr(desc string, err error) {
 	}
 }
 
-// Function literal type to take a HDFS src path and local dst path
-type pathAct func(string, string)
+// Function literal type to take a HDFS src path, local dst path, and HDFS client
+type pathAct func(string, string, *hdfs.Client, os.FileInfo)
 
 func walkDir(dirname string, src string, dst string, client *hdfs.Client, act pathAct) {
 	srcDirPath := path.Join(src, dirname)
@@ -45,7 +46,7 @@ func walkDir(dirname string, src string, dst string, client *hdfs.Client, act pa
 		srcPath := path.Join(srcDirPath, f.Name())
 		dstPath := path.Join(dstDirPath, f.Name())
 
-		act(srcPath, dstPath)
+		act(srcPath, dstPath, client, f)
 
 		if f.IsDir() {
 			walkDir(f.Name(), srcDirPath, dstDirPath, client, act)
@@ -71,7 +72,14 @@ func main() {
 	}
 
 	// recursive portion
-	walkDir("", c.Src, c.Dst, client, func(srcPath string, dstPath string) {
-		log.Printf("%s -> %s", srcPath, dstPath)
+	walkDir("", c.Src, c.Dst, client, func(srcPath string, dstPath string, client *hdfs.Client, f os.FileInfo) {
+		if f.IsDir() {
+			err := os.MkdirAll(dstPath, f.Mode())
+			exitOnErr("os.MkdirAll", err)
+		} else {
+			log.Printf("%s -> %s", srcPath, dstPath)
+			err := client.CopyToLocal(srcPath, dstPath)
+			exitOnErr("hdfs.Client.CopyToLocal", err)
+		}
 	})
 }
