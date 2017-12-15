@@ -31,21 +31,24 @@ func exitOnErr(desc string, err error) {
 	}
 }
 
-// Function literal type to take a HDFS src path and perform an action
-type pathAct func(string)
+// Function literal type to take a HDFS src path and local dst path
+type pathAct func(string, string)
 
-func walkDir(dirname string, basePath string, client *hdfs.Client, act pathAct) {
-	dirPath := path.Join(basePath, dirname)
-	fileInfo, err := client.ReadDir(dirPath)
+func walkDir(dirname string, src string, dst string, client *hdfs.Client, act pathAct) {
+	srcDirPath := path.Join(src, dirname)
+	dstDirPath := path.Join(dst, dirname)
 
+	fileInfo, err := client.ReadDir(srcDirPath)
 	exitOnErr("HDFS ReadDir", err)
 
 	for _, f := range fileInfo {
-		filePath := path.Join(dirPath, f.Name())
-		act(filePath)
+		srcPath := path.Join(srcDirPath, f.Name())
+		dstPath := path.Join(dstDirPath, f.Name())
+
+		act(srcPath, dstPath)
 
 		if f.IsDir() {
-			walkDir(f.Name(), dirPath, client, act)
+			walkDir(f.Name(), srcDirPath, dstDirPath, client, act)
 		}
 	}
 }
@@ -68,7 +71,7 @@ func main() {
 	}
 
 	// recursive portion
-	walkDir(c.Src, "", client, func(srcPath string) {
-		log.Printf("File info: %s", srcPath)
+	walkDir("", c.Src, c.Dst, client, func(srcPath string, dstPath string) {
+		log.Printf("%s -> %s", srcPath, dstPath)
 	})
 }
