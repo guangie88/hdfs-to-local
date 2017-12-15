@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"path"
 
 	"github.com/BurntSushi/toml"
 	"github.com/colinmarc/hdfs"
@@ -30,20 +31,38 @@ func exitOnErr(desc string, err error) {
 	}
 }
 
+func walkDir(dirname string, basePath string, client *hdfs.Client) {
+	dirPath := path.Join(basePath, dirname)
+	fileInfo, err := client.ReadDir(dirPath)
+
+	exitOnErr("HDFS ReadDir", err)
+
+	for _, f := range fileInfo {
+		if f.IsDir() {
+			walkDir(f.Name(), dirPath, client)
+		}
+
+		log.Printf("File info: %s", path.Join(dirPath, f.Name()))
+	}
+}
+
 func main() {
 	kingpin.Parse()
 	var c config
 
 	_, err := toml.DecodeFile(*conf, &c)
-	exitOnErr("TOML error", err)
+	exitOnErr("TOML DecodeFile", err)
 
 	client, err := hdfs.New(c.Host)
-	exitOnErr("HDFS new", err)
+	exitOnErr("HDFS New", err)
 
 	srcStat, err := client.Stat(c.Src)
-	exitOnErr("HDFS stat", err)
+	exitOnErr("HDFS Stat", err)
 
 	if !srcStat.IsDir() {
-		log.Fatalf("Given source path '%s' is not a directory!", c.Src)
+		log.Fatalf("HDFS src: Given source path '%s' is not a directory!", c.Src)
 	}
+
+	// recursive portion
+	walkDir(c.Src, "", client)
 }
