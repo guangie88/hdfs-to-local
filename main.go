@@ -3,31 +3,47 @@ package main
 import (
 	"log"
 
+	"github.com/BurntSushi/toml"
 	"github.com/colinmarc/hdfs"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	host = kingpin.Flag("host", "HDFS server hostname.").Required().String()
-	root = kingpin.Flag("root", "Root path to data").Required().String()
+	conf = kingpin.Flag("conf", "TOML config file path.").Required().ExistingFile()
 )
 
-func exitOnErr(err error) {
+// config Main program config struct.
+type config struct {
+	// HDFS server hostname.
+	Host string
+
+	// HDFS source directory path to sync from.
+	Src string
+
+	// Local storage directory path to sync to.
+	Dst string
+}
+
+func exitOnErr(desc string, err error) {
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("%s: %s", desc, err)
 	}
 }
 
 func main() {
 	kingpin.Parse()
+	var c config
 
-	client, err := hdfs.New(*host)
-	exitOnErr(err)
+	_, err := toml.DecodeFile(*conf, &c)
+	exitOnErr("TOML error", err)
 
-	rootFile, err := client.Stat(*root)
-	exitOnErr(err)
+	client, err := hdfs.New(c.Host)
+	exitOnErr("HDFS new", err)
 
-	if !rootFile.IsDir() {
-		log.Fatalf("Given root path '%s' is not a directory!", *root)
+	srcStat, err := client.Stat(c.Src)
+	exitOnErr("HDFS stat", err)
+
+	if !srcStat.IsDir() {
+		log.Fatalf("Given source path '%s' is not a directory!", c.Src)
 	}
 }

@@ -1,0 +1,3 @@
+Host = "localhost:8020"
+Src = "/data"
+Dst = "./"

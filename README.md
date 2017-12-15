@@ -38,7 +38,7 @@ Assuming HDFS server is running on port 8020 locally, and there is a directory
 at `/data`:
 
 ```bash
-./hdfs-to-local --host localhost:8020 --root /data
+./hdfs-to-local --conf config/example.toml
 ```
 
 For more program argument details:
