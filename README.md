@@ -1,6 +1,6 @@
 # `hdfs-to-local`
 
-This is still an experimental project.
+This is an experimental project.
 
 Performs a recursive directory copy from HDFS host to local storage. Does not
 require any Hadoop binaries since it uses Go native implemented HDFS client
@@ -8,9 +8,14 @@ library.
 
 ## Requirements
 
-* [`glide`](https://glide.sh/)
+* [`go`](https://golang.org/dl/) + [`glide`](https://glide.sh/) **OR**
+* [`docker`](https://www.docker.com/get-docker) +
+  [`docker-compose`](https://docs.docker.com/compose/install/) that is able to
+  run Compose v2 file
 
 ## How to Build
+
+### Native Build
 
 Install the go dependencies for this project into `vendor/`:
 
@@ -24,13 +29,43 @@ Build and you are done:
 go build
 ```
 
-The compiled executable is named `hdfs-to-local`.
+The compiled executable will be located at the repository root directory, and is
+named `hdfs-to-local`.
 
-For pure statically linked executable, use the following command instead:
+For fully statically linked executable, use the following command instead:
 
 ```bash
 CGO_ENABLED=0 go build
 ```
+
+### Docker Build
+
+This alternative method is recommended if you are lazy, or simply refuse to set
+up `go`, `glide` or the environment variable `GOPATH`.
+
+Run the following for full compilation:
+
+```bash
+docker-compose run all
+```
+
+The compiled executable will be located at the repository root directory, and is
+named `hdfs-to-local`. The executable is always fully statically linked.
+
+The following commands are available to run for `docker-compose`:
+
+* `all`
+  * Performs `glide install`, followed by `go build`.
+  * e.g. `docker-compose run all`
+* `install`
+  * Performs only `glide install`.
+  * e.g. `docker-compose run install`
+* `build`
+  * Performs only `go build`.
+  * e.g. `docker-compose run build`
+* `clean`
+  * Performs `go clean`.
+  * e.g. `docker-compose run clean`
 
 ## How to Run
 
