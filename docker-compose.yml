@@ -1,0 +1,32 @@
+version: '2'
+services:
+  all:
+    image: 'varikin/golang-glide-alpine:latest'
+    command:
+      - /bin/sh
+      - '-c'
+      - >-
+        cd /go/src/github.com/guangie88/hdfs-to-local && CGO_ENABLED=0 glide
+        install && CGO_ENABLED=0 go build -v
+    volumes:
+      - './:/go/src/github.com/guangie88/hdfs-to-local'
+  install:
+    image: 'varikin/golang-glide-alpine:latest'
+    command:
+      - /bin/sh
+      - '-c'
+      - >-
+        cd /go/src/github.com/guangie88/hdfs-to-local && CGO_ENABLED=0 glide
+        install
+    volumes:
+      - './:/go/src/github.com/guangie88/hdfs-to-local'
+  build:
+    image: 'varikin/golang-glide-alpine:latest'
+    command:
+      - /bin/sh
+      - '-c'
+      - >-
+        cd /go/src/github.com/guangie88/hdfs-to-local && CGO_ENABLED=0 go build
+        -v
+    volumes:
+      - './:/go/src/github.com/guangie88/hdfs-to-local'
