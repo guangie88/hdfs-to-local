@@ -30,3 +30,11 @@ services:
         -v
     volumes:
       - './:/go/src/github.com/guangie88/hdfs-to-local'
+  clean:
+    image: 'varikin/golang-glide-alpine:latest'
+    command:
+      - /bin/sh
+      - '-c'
+      - cd /go/src/github.com/guangie88/hdfs-to-local && go clean
+    volumes:
+      - './:/go/src/github.com/guangie88/hdfs-to-local'
