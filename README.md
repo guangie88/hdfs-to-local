@@ -69,7 +69,7 @@ The following commands are available to run for `docker-compose`:
 
 ## How to Run
 
-Assuming HDFS server is running on port 8020 locally, and there is a directory
+Assuming HDFS server is running on port 9000 locally, and there is a directory
 at `/data`:
 
 ```bash
