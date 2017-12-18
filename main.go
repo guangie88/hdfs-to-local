@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/md5"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -58,6 +60,33 @@ func walkDir(dirname string, src string, dst string, client *hdfs.Client, act pa
 	}
 }
 
+func isMatchingFilters(srcPath string, filters []*regexp.Regexp) bool {
+	for _, r := range filters {
+		if r.MatchString(srcPath) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isSimilarFile(srcPath string, dstPath string, client *hdfs.Client) (bool, error) {
+	srcData, err := client.ReadFile(srcPath)
+
+	if err != nil {
+		return false, err
+	}
+
+	// allow for dst file not to exist
+	dstData, err := ioutil.ReadFile(dstPath)
+
+	if err != nil {
+		return false, nil
+	}
+
+	return md5.Sum(srcData) == md5.Sum(dstData), nil
+}
+
 func main() {
 	kingpin.Parse()
 	var c config
@@ -83,29 +112,21 @@ func main() {
 		log.Fatalf("HDFS src: Given source path '%s' is not a directory!", c.Src)
 	}
 
-	matchFilters := func(srcPath string) bool {
-		for _, r := range filters {
-			if r.MatchString(srcPath) {
-				return true
-			}
-		}
-
-		return false
-	}
-
 	// recursive portion
 	walkDir("", c.Src, c.Dst, client, func(srcPath string, dstPath string, client *hdfs.Client, f os.FileInfo) {
 		if f.IsDir() {
 			err := os.MkdirAll(dstPath, f.Mode())
 			exitOnErr("os.MkdirAll", err)
-		} else if !f.IsDir() && matchFilters(srcPath) {
-			log.Printf("%s -> %s", srcPath, dstPath)
-			// log.Printf("%s", filepath.Dir(dstPath))
-			// err := os.MkdirAll(filepath.Dir(dstPath), f.Mode())
-			// exitOnErr("os.MkdirAll", err)
+		} else if !f.IsDir() && isMatchingFilters(srcPath, filters) {
+			isSimilar, err := isSimilarFile(srcPath, dstPath, client)
 
-			err = client.CopyToLocal(srcPath, dstPath)
-			exitOnErr("hdfs.Client.CopyToLocal", err)
+			if isSimilar {
+				log.Printf("SIMILAR %s AND %s, not copying...", srcPath, dstPath)
+			} else {
+				log.Printf("COPY %s -> %s", srcPath, dstPath)
+				err = client.CopyToLocal(srcPath, dstPath)
+				exitOnErr("hdfs.Client.CopyToLocal", err)
+			}
 		}
 	})
 }
