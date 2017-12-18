@@ -119,6 +119,7 @@ func main() {
 			exitOnErr("os.MkdirAll", err)
 		} else if !f.IsDir() && isMatchingFilters(srcPath, filters) {
 			isSimilar, err := isSimilarFile(srcPath, dstPath, client)
+			exitOnErr("isSimilarFile", err)
 
 			if isSimilar {
 				log.Printf("SIMILAR %s AND %s, not copying...", srcPath, dstPath)
