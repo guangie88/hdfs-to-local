@@ -1,3 +1,4 @@
 Host = "localhost:9000"
 Src = "/data"
 Dst = "./data-dst"
+Filters = ['.+?/\d+?/valid_data_count/count\.csv', '.+?/\d+?/volume_logs/.+?\.log']

@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"regexp"
 
 	"github.com/BurntSushi/toml"
 	"github.com/colinmarc/hdfs"
@@ -24,6 +25,9 @@ type config struct {
 
 	// Local storage directory path to sync to.
 	Dst string
+
+	// Regex filters accepting the source files to copy from.
+	Filters []string
 }
 
 func exitOnErr(desc string, err error) {
@@ -61,6 +65,14 @@ func main() {
 	_, err := toml.DecodeFile(*conf, &c)
 	exitOnErr("TOML DecodeFile", err)
 
+	filters := make([]*regexp.Regexp, len(c.Filters))
+
+	for i, f := range c.Filters {
+		filter, err := regexp.Compile(f)
+		exitOnErr("regexp.Compile", err)
+		filters[i] = filter
+	}
+
 	client, err := hdfs.New(c.Host)
 	exitOnErr("HDFS New", err)
 
@@ -71,14 +83,28 @@ func main() {
 		log.Fatalf("HDFS src: Given source path '%s' is not a directory!", c.Src)
 	}
 
+	matchFilters := func(srcPath string) bool {
+		for _, r := range filters {
+			if r.MatchString(srcPath) {
+				return true
+			}
+		}
+
+		return false
+	}
+
 	// recursive portion
 	walkDir("", c.Src, c.Dst, client, func(srcPath string, dstPath string, client *hdfs.Client, f os.FileInfo) {
 		if f.IsDir() {
 			err := os.MkdirAll(dstPath, f.Mode())
 			exitOnErr("os.MkdirAll", err)
-		} else {
+		} else if !f.IsDir() && matchFilters(srcPath) {
 			log.Printf("%s -> %s", srcPath, dstPath)
-			err := client.CopyToLocal(srcPath, dstPath)
+			// log.Printf("%s", filepath.Dir(dstPath))
+			// err := os.MkdirAll(filepath.Dir(dstPath), f.Mode())
+			// exitOnErr("os.MkdirAll", err)
+
+			err = client.CopyToLocal(srcPath, dstPath)
 			exitOnErr("hdfs.Client.CopyToLocal", err)
 		}
 	})

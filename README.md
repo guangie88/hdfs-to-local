@@ -40,8 +40,9 @@ CGO_ENABLED=0 go build
 
 ### Docker Build
 
-This alternative method is recommended if you are lazy, or simply refuse to set
-up `go`, `glide` or the environment variable `GOPATH`.
+This alternative method is recommended if you do not wish to up `go`, `glide` or
+the environment variable `GOPATH`, or prefer not to have this repository files
+not within the `GOPATH`.
 
 Run the following for full compilation:
 
