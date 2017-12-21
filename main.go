@@ -114,10 +114,10 @@ func main() {
 
 	// recursive portion
 	walkDir("", c.Src, c.Dst, client, func(srcPath string, dstPath string, client *hdfs.Client, f os.FileInfo) {
-		if f.IsDir() {
-			err := os.MkdirAll(dstPath, f.Mode())
+		if !f.IsDir() && isMatchingFilters(srcPath, filters) {
+			err := os.MkdirAll(path.Dir(dstPath), 0755)
 			exitOnErr("os.MkdirAll", err)
-		} else if !f.IsDir() && isMatchingFilters(srcPath, filters) {
+
 			isSimilar, err := isSimilarFile(srcPath, dstPath, client)
 			exitOnErr("isSimilarFile", err)
 
