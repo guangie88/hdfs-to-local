@@ -47,8 +47,11 @@ not within the `GOPATH`.
 Run the following for full compilation:
 
 ```bash
-docker-compose run all
+docker-compose run -u $UID:`id -g` all
 ```
+
+Note that ``-u $UID:`id -g` `` is optional, but useful to perform the
+compilation under your current user's UID and GID.
 
 The compiled executable will be located at the repository root directory, and is
 named `hdfs-to-local`. The executable is always fully statically linked.
@@ -57,16 +60,16 @@ The following commands are available to run for `docker-compose`:
 
 * `all`
   * Performs `glide install`, followed by `go build`.
-  * e.g. `docker-compose run all`
+  * e.g. `docker-compose run -u $UID:`id -g` all`
 * `install`
   * Performs only `glide install`.
-  * e.g. `docker-compose run install`
+  * e.g. `docker-compose run -u $UID:`id -g` install`
 * `build`
   * Performs only `go build`.
-  * e.g. `docker-compose run build`
+  * e.g. `docker-compose run -u $UID:`id -g` build`
 * `clean`
   * Performs `go clean`.
-  * e.g. `docker-compose run clean`
+  * e.g. `docker-compose run -u $UID:`id -g` clean`
 
 ## How to Run
 

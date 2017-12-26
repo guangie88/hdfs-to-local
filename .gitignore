@@ -1,3 +1,4 @@
+.glide/
 vendor/
 data-dst/
 hdfs-to-local
