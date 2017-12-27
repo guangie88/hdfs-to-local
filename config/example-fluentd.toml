@@ -1,0 +1,11 @@
+
+Host = "localhost:9000"
+Src = "/data"
+Dst = "./data-dst"
+Filters = ['.+?/\d+?/valid_data_count/count\.csv', '.+?/\d+?/volume_logs/.+?\.log']
+UseFluentd = true
+
+[Fluentd]
+Host = "localhost"
+Port = 24224
+Tag = "app.hdfs-to-local"

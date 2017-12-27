@@ -1,4 +1,5 @@
 .glide/
+.vscode/
 vendor/
 data-dst/
 hdfs-to-local
