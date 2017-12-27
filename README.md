@@ -60,16 +60,16 @@ The following commands are available to run for `docker-compose`:
 
 * `all`
   * Performs `glide install`, followed by `go build`.
-  * e.g. `docker-compose run -u $UID:`id -g` all`
+  * e.g. ``docker-compose run -u $UID:`id -g` all``
 * `install`
   * Performs only `glide install`.
-  * e.g. `docker-compose run -u $UID:`id -g` install`
+  * e.g. ``docker-compose run -u $UID:`id -g` install``
 * `build`
   * Performs only `go build`.
-  * e.g. `docker-compose run -u $UID:`id -g` build`
+  * e.g. ``docker-compose run -u $UID:`id -g` build``
 * `clean`
   * Performs `go clean`.
-  * e.g. `docker-compose run -u $UID:`id -g` clean`
+  * e.g. ``docker-compose run -u $UID:`id -g` clean``
 
 ## How to Run
 
