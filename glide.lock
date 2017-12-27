@@ -1,5 +1,5 @@
-hash: e4e1ac8f6e5492d43f9e9f8dc60d06b2d23a6222813a53dc1e66fe2010773430
-updated: 2017-12-15T09:09:18.487261846+08:00
+hash: 2be7a14ae906235bb6bfeb9f73b1445c547f26eb42c11717bac4307aeb4c2b92
+updated: 2017-12-27T15:32:15.509558784+08:00
 imports:
 - name: github.com/alecthomas/template
   version: a0175ee3bccc567396460bf5acd36800cb10c49c
@@ -19,6 +19,8 @@ imports:
   version: 1e59b77b52bf8e4b449a57e6f79f21226d571845
   subpackages:
   - proto
+- name: github.com/sirupsen/logrus
+  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
 - name: gopkg.in/alecthomas/kingpin.v2
-  version: 1087e65c9441605df944fb12c33f0fe7072d18ca
+  version: 947dcec5ba9c011838740e680966fd7087a71d0d
 testImports: []

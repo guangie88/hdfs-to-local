@@ -50,7 +50,7 @@ Run the following for full compilation:
 docker-compose run -u $UID:`id -g` all
 ```
 
-Note that ``-u $UID:`id -g` `` is optional, but useful to perform the
+Note that `` -u $UID:`id -g` `` is optional, but useful to perform the
 compilation under your current user's UID and GID.
 
 The compiled executable will be located at the repository root directory, and is
@@ -60,16 +60,19 @@ The following commands are available to run for `docker-compose`:
 
 * `all`
   * Performs `glide install`, followed by `go build`.
-  * e.g. ``docker-compose run -u $UID:`id -g` all``
+  * e.g. `` docker-compose run -u $UID:`id -g` all ``
 * `install`
   * Performs only `glide install`.
-  * e.g. ``docker-compose run -u $UID:`id -g` install``
+  * e.g. `` docker-compose run -u $UID:`id -g` install ``
 * `build`
   * Performs only `go build`.
-  * e.g. ``docker-compose run -u $UID:`id -g` build``
+  * e.g. `` docker-compose run -u $UID:`id -g` build ``
 * `clean`
   * Performs `go clean`.
-  * e.g. ``docker-compose run -u $UID:`id -g` clean``
+  * e.g. `` docker-compose run -u $UID:`id -g` clean ``
+* `update`
+  * Performs `glide update`. Not recommended since it updates the dependencies.
+  * e.g. `` docker-compose run -u $UID:`id -g` update ``
 
 ## How to Run
 

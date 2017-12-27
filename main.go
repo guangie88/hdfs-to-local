@@ -32,12 +32,6 @@ type config struct {
 	Filters []string
 }
 
-func exitOnErr(desc string, err error) {
-	if err != nil {
-		log.Fatalf("%s: %s", desc, err)
-	}
-}
-
 // Function literal type to take a HDFS src path, local dst path, and HDFS client
 type pathAct func(string, string, *hdfs.Client, os.FileInfo)
 
@@ -85,6 +79,12 @@ func isSimilarFile(srcPath string, dstPath string, client *hdfs.Client) (bool, e
 	}
 
 	return md5.Sum(srcData) == md5.Sum(dstData), nil
+}
+
+func exitOnErr(desc string, err error) {
+	if err != nil {
+		log.Fatalf("%s: %s", desc, err)
+	}
 }
 
 func main() {

@@ -8,8 +8,16 @@ services:
       - >-
         cd /go/src/github.com/guangie88/hdfs-to-local && CGO_ENABLED=0 glide
         install && CGO_ENABLED=0 go build -v
-    volumes:
-      - './:/go/src/github.com/guangie88/hdfs-to-local'
+    volumes_from:
+      - _v
+  update:
+    image: 'varikin/golang-glide-alpine:latest'
+    command:
+      - /bin/sh
+      - '-c'
+      - cd /go/src/github.com/guangie88/hdfs-to-local && glide update
+    volumes_from:
+      - _v
   install:
     image: 'varikin/golang-glide-alpine:latest'
     command:
@@ -19,7 +27,7 @@ services:
         cd /go/src/github.com/guangie88/hdfs-to-local && CGO_ENABLED=0 glide
         install
     volumes_from:
-      - all 
+      - _v
   build:
     image: 'varikin/golang-glide-alpine:latest'
     command:
@@ -29,7 +37,7 @@ services:
         cd /go/src/github.com/guangie88/hdfs-to-local && CGO_ENABLED=0 go build
         -v
     volumes_from:
-      - all 
+      - _v
   clean:
     image: 'varikin/golang-glide-alpine:latest'
     command:
@@ -37,4 +45,8 @@ services:
       - '-c'
       - cd /go/src/github.com/guangie88/hdfs-to-local && go clean
     volumes_from:
-      - all 
+      - _v
+  _v:
+    image: 'varikin/golang-glide-alpine:latest'
+    volumes:
+      - './:/go/src/github.com/guangie88/hdfs-to-local'
