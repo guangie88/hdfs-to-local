@@ -3,13 +3,13 @@ package main
 import (
 	"crypto/md5"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"regexp"
 
 	"github.com/BurntSushi/toml"
 	"github.com/colinmarc/hdfs"
+	log "github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
