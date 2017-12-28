@@ -20,10 +20,16 @@ var (
 	conf = kingpin.Flag("conf", "TOML config file path.").Required().ExistingFile()
 )
 
+// fluentd Fluentd configuration
 type fluentd struct {
+	// Fluentd server hostname
 	Host string
+
+	// Fluentd server port
 	Port int
-	Tag  string
+
+	// Tag to use to post to Fluentd server
+	Tag string
 }
 
 // config Main program config struct.
@@ -40,10 +46,10 @@ type config struct {
 	// Regex filters accepting the source files to copy from.
 	Filters []string
 
-	//
+	// Indicator to use Fluentd logging
 	UseFluentd bool
 
-	//
+	// Fluentd configurations
 	Fluentd fluentd
 }
 
@@ -99,7 +105,6 @@ func isSimilarFile(srcPath string, dstPath string, client *hdfs.Client) (bool, e
 func exitOnErrMsg(desc string, errMsg string) {
 	log.WithFields(log.Fields{
 		"error": errMsg,
-		"tag":   "app.hdfs-to-local",
 	}).Error(desc)
 
 	os.Exit(1)
@@ -114,9 +119,8 @@ func exitOnErr(desc string, err error) {
 func initLog(c config) error {
 	if c.UseFluentd {
 		hook, err := logrus_fluent.NewWithConfig(logrus_fluent.Config{
-			Host:          c.Fluentd.Host,
-			Port:          c.Fluentd.Port,
-			MarshalAsJSON: true,
+			Host: c.Fluentd.Host,
+			Port: c.Fluentd.Port,
 		})
 
 		if err != nil {
