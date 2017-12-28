@@ -25,7 +25,7 @@ services:
       - '-c'
       - >-
         cd /go/src/github.com/guangie88/hdfs-to-local && CGO_ENABLED=0 glide
-        install --all-dependencies
+        install
     volumes_from:
       - _v
   build:

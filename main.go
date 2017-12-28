@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/md5"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -9,6 +10,8 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/colinmarc/hdfs"
+	"github.com/evalphobia/logrus_fluent"
+	joonix "github.com/joonix/log"
 	log "github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
@@ -16,6 +19,12 @@ import (
 var (
 	conf = kingpin.Flag("conf", "TOML config file path.").Required().ExistingFile()
 )
+
+type fluentd struct {
+	Host string
+	Port int
+	Tag  string
+}
 
 // config Main program config struct.
 type config struct {
@@ -30,6 +39,12 @@ type config struct {
 
 	// Regex filters accepting the source files to copy from.
 	Filters []string
+
+	//
+	UseFluentd bool
+
+	//
+	Fluentd fluentd
 }
 
 // Function literal type to take a HDFS src path, local dst path, and HDFS client
@@ -83,16 +98,51 @@ func isSimilarFile(srcPath string, dstPath string, client *hdfs.Client) (bool, e
 
 func exitOnErr(desc string, err error) {
 	if err != nil {
-		log.Fatalf("%s: %s", desc, err)
+		log.WithFields(log.Fields{
+			"error": fmt.Sprintf("%v", err),
+		}).Error(desc)
+
+		os.Exit(1)
 	}
+}
+
+func initLog(c config) error {
+	if c.UseFluentd {
+		hook, err := logrus_fluent.NewWithConfig(logrus_fluent.Config{
+			Host:          c.Fluentd.Host,
+			Port:          c.Fluentd.Port,
+			MarshalAsJSON: true,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		hook.SetLevels([]log.Level{
+			log.InfoLevel,
+			log.ErrorLevel,
+		})
+
+		hook.SetTag(c.Fluentd.Tag)
+
+		log.SetFormatter(&joonix.FluentdFormatter{})
+		log.AddHook(hook)
+	} else {
+		log.SetFormatter(&log.JSONFormatter{})
+	}
+
+	return nil
 }
 
 func main() {
 	kingpin.Parse()
-	var c config
 
+	var c config
 	_, err := toml.DecodeFile(*conf, &c)
 	exitOnErr("TOML DecodeFile", err)
+
+	err = initLog(c)
+	exitOnErr("initLog", err)
 
 	filters := make([]*regexp.Regexp, len(c.Filters))
 

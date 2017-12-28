@@ -1,5 +1,5 @@
-hash: 30b967411f4e92e05545cbe3c8de78fc21e12ff9b2f3f87fbf8433ca5804434e
-updated: 2017-12-27T08:20:53.94324272Z
+hash: 7c976bed861549d4ae072b0a13aa26c5bca1e5541199cd23390444cfcee2b782
+updated: 2017-12-28T09:02:47.949063336Z
 imports:
 - name: github.com/alecthomas/template
   version: a0175ee3bccc567396460bf5acd36800cb10c49c
@@ -15,12 +15,26 @@ imports:
   - protocol/hadoop_common
   - protocol/hadoop_hdfs
   - rpc
+- name: github.com/evalphobia/logrus_fluent
+  version: 76779e73f35d90f5a873e7feaf6691999b2c5db4
+- name: github.com/fluent/fluent-logger-golang
+  version: 8bbc2356beaf021b04c9bd5cdc76ea5a7ccb40ec
+  subpackages:
+  - fluent
 - name: github.com/golang/protobuf
   version: 1e59b77b52bf8e4b449a57e6f79f21226d571845
   subpackages:
   - proto
+- name: github.com/joonix/log
+  version: 9f489441df72b5a985b0ee0423850c7999a3a09b
+- name: github.com/philhofer/fwd
+  version: bb6d471dc95d4fe11e432687f8b70ff496cf3136
 - name: github.com/sirupsen/logrus
   version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
+- name: github.com/tinylib/msgp
+  version: 5bb5e1aed7ba5bcc93307153b020e7ffe79b0509
+  subpackages:
+  - msgp
 - name: golang.org/x/crypto
   version: d585fd2cc9195196078f516b69daff6744ef5e84
   subpackages:
