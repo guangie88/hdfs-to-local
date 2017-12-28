@@ -8,4 +8,4 @@ UseFluentd = true
 [Fluentd]
 Host = "localhost"
 Port = 24224
-Tag = "hdfs-to-local"
+Tag = "app.hdfs-to-local"

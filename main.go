@@ -96,13 +96,18 @@ func isSimilarFile(srcPath string, dstPath string, client *hdfs.Client) (bool, e
 	return md5.Sum(srcData) == md5.Sum(dstData), nil
 }
 
+func exitOnErrMsg(desc string, errMsg string) {
+	log.WithFields(log.Fields{
+		"error": errMsg,
+		"tag":   "app.hdfs-to-local",
+	}).Error(desc)
+
+	os.Exit(1)
+}
+
 func exitOnErr(desc string, err error) {
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": fmt.Sprintf("%v", err),
-		}).Error(desc)
-
-		os.Exit(1)
+		exitOnErrMsg(desc, fmt.Sprintf("%v", err))
 	}
 }
 
@@ -118,14 +123,10 @@ func initLog(c config) error {
 			return err
 		}
 
-		hook.SetLevels([]log.Level{
-			log.InfoLevel,
-			log.ErrorLevel,
-		})
-
+		hook.SetLevels(log.AllLevels)
 		hook.SetTag(c.Fluentd.Tag)
-
 		log.SetFormatter(&joonix.FluentdFormatter{})
+
 		log.AddHook(hook)
 	} else {
 		log.SetFormatter(&log.JSONFormatter{})
@@ -159,7 +160,7 @@ func main() {
 	exitOnErr("HDFS Stat", err)
 
 	if !srcStat.IsDir() {
-		log.Fatalf("HDFS src: Given source path '%s' is not a directory!", c.Src)
+		exitOnErrMsg("HDFS src", fmt.Sprintf("Given source path '%s' is not a directory!", c.Src))
 	}
 
 	// recursive portion
@@ -172,9 +173,14 @@ func main() {
 			exitOnErr("isSimilarFile", err)
 
 			if isSimilar {
-				log.Printf("SIMILAR %s AND %s, not copying...", srcPath, dstPath)
+				log.WithFields(log.Fields{
+					"action": "SIMILAR",
+				}).Infof("%s AND %s, not copying...", srcPath, dstPath)
 			} else {
-				log.Printf("COPY %s -> %s", srcPath, dstPath)
+				log.WithFields(log.Fields{
+					"action": "COPY",
+				}).Infof("%s -> %s", srcPath, dstPath)
+
 				err = client.CopyToLocal(srcPath, dstPath)
 				exitOnErr("hdfs.Client.CopyToLocal", err)
 			}
