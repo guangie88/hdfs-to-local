@@ -10,15 +10,16 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/colinmarc/hdfs"
-	"github.com/evalphobia/logrus_fluent"
-	joonix "github.com/joonix/log"
-	log "github.com/sirupsen/logrus"
+	"github.com/fluent/fluent-logger-golang/fluent"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
 	conf = kingpin.Flag("conf", "TOML config file path.").Required().ExistingFile()
 )
+
+var log *fluent.Fluent
+var tag string
 
 // fluentd Fluentd configuration
 type fluentd struct {
@@ -45,9 +46,6 @@ type config struct {
 
 	// Regex filters accepting the source files to copy from.
 	Filters []string
-
-	// Indicator to use Fluentd logging
-	UseFluentd bool
 
 	// Fluentd configurations
 	Fluentd fluentd
@@ -102,39 +100,36 @@ func isSimilarFile(srcPath string, dstPath string, client *hdfs.Client) (bool, e
 	return md5.Sum(srcData) == md5.Sum(dstData), nil
 }
 
-func exitOnErrMsg(desc string, errMsg string) {
-	log.WithFields(log.Fields{
-		"error": errMsg,
-	}).Error(desc)
+func exitOnErrMsg(heading string, errMsg string) {
+	if log != nil {
+		log.Post(tag, map[string]string{
+			"heading": heading,
+			"error":   errMsg,
+		})
+	}
 
 	os.Exit(1)
 }
 
-func exitOnErr(desc string, err error) {
+func exitOnErr(heading string, err error) {
 	if err != nil {
-		exitOnErrMsg(desc, fmt.Sprintf("%v", err))
+		exitOnErrMsg(heading, fmt.Sprintf("%v", err))
 	}
 }
 
 func initLog(c config) error {
-	if c.UseFluentd {
-		hook, err := logrus_fluent.NewWithConfig(logrus_fluent.Config{
-			Host: c.Fluentd.Host,
-			Port: c.Fluentd.Port,
-		})
+	l, err := fluent.New(fluent.Config{
+		FluentHost: c.Fluentd.Host,
+		FluentPort: c.Fluentd.Port,
+	})
 
-		if err != nil {
-			return err
-		}
-
-		hook.SetLevels(log.AllLevels)
-		hook.SetTag(c.Fluentd.Tag)
-		log.SetFormatter(&joonix.FluentdFormatter{})
-
-		log.AddHook(hook)
-	} else {
-		log.SetFormatter(&log.JSONFormatter{})
+	if err != nil {
+		return err
 	}
+
+	log = l
+	tag = c.Fluentd.Tag
+	log.Post(tag, "hdfs-to-local log started")
 
 	return nil
 }
@@ -148,6 +143,7 @@ func main() {
 
 	err = initLog(c)
 	exitOnErr("initLog", err)
+	defer log.Close()
 
 	filters := make([]*regexp.Regexp, len(c.Filters))
 
@@ -177,13 +173,15 @@ func main() {
 			exitOnErr("isSimilarFile", err)
 
 			if isSimilar {
-				log.WithFields(log.Fields{
+				log.Post(tag, map[string]string{
 					"action": "SIMILAR",
-				}).Infof("%s AND %s, not copying...", srcPath, dstPath)
+					"msg":    fmt.Sprintf("%s AND %s, not copying...", srcPath, dstPath),
+				})
 			} else {
-				log.WithFields(log.Fields{
+				log.Post(tag, map[string]string{
 					"action": "COPY",
-				}).Infof("%s -> %s", srcPath, dstPath)
+					"msg":    fmt.Sprintf("%s -> %s", srcPath, dstPath),
+				})
 
 				err = client.CopyToLocal(srcPath, dstPath)
 				exitOnErr("hdfs.Client.CopyToLocal", err)
