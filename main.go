@@ -181,7 +181,7 @@ func initLog(c config) error {
 		logClose = genFluentdLogClose(logger)
 	}
 
-	log(logrus.InfoLevel, "hdfs-to-local INIT", "Log started")
+	log(logrus.InfoLevel, "INIT", "Log started")
 	return nil
 }
 
