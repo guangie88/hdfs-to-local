@@ -191,17 +191,17 @@ func main() {
 
 	var c config
 	_, err := toml.DecodeFile(*conf, &c)
-	exitOnErr("TOML DecodeFile", err)
+	exitOnErr("INIT", err)
 
 	err = initLog(c)
-	exitOnErr("initLog", err)
+	exitOnErr("INIT", err)
 	defer logClose()
 
 	filters := make([]*regexp.Regexp, len(c.Filters))
 
 	for i, f := range c.Filters {
 		filter, err := regexp.Compile(f)
-		exitOnErr("regexp.Compile", err)
+		exitOnErr("INIT", err)
 		filters[i] = filter
 	}
 
