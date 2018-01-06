@@ -1,5 +1,5 @@
-hash: 60b2bdd6f815aeb0f52395eac2bbf8f6ef27e0a8c4a86d50c53e14873da94b42
-updated: 2017-12-28T13:24:05.422163441Z
+hash: 6a198c10e370379bf9c63d90a1f1f5765bba9f0ae375857550353386a2ef58f0
+updated: 2018-01-06T12:30:09.666139648+08:00
 imports:
 - name: github.com/alecthomas/template
   version: a0175ee3bccc567396460bf5acd36800cb10c49c
@@ -15,8 +15,6 @@ imports:
   - protocol/hadoop_common
   - protocol/hadoop_hdfs
   - rpc
-- name: github.com/evalphobia/logrus_fluent
-  version: 76779e73f35d90f5a873e7feaf6691999b2c5db4
 - name: github.com/fluent/fluent-logger-golang
   version: 8bbc2356beaf021b04c9bd5cdc76ea5a7ccb40ec
   subpackages:
@@ -25,8 +23,6 @@ imports:
   version: 1e59b77b52bf8e4b449a57e6f79f21226d571845
   subpackages:
   - proto
-- name: github.com/joonix/log
-  version: 9f489441df72b5a985b0ee0423850c7999a3a09b
 - name: github.com/philhofer/fwd
   version: bb6d471dc95d4fe11e432687f8b70ff496cf3136
 - name: github.com/sirupsen/logrus
