@@ -1,6 +1,8 @@
 # `hdfs-to-local`
 
-This is an experimental project.
+This project is deprecated in favor of the version in GitLab.
+
+See [https://gitlab.com/guangie88/hdfs-to-local](https://gitlab.com/guangie88/hdfs-to-local).
 
 Performs a recursive directory copy from HDFS host to local storage. Does not
 require any Hadoop binaries since it uses Go native implemented HDFS client
